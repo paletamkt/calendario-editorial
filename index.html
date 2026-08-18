@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Paleta Editorial</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23B8956A'/><text x='50' y='65' font-size='60' font-weight='700' text-anchor='middle' fill='%238B6C45' font-family='serif'>P</text></svg>" type="image/svg+xml">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
@@ -45,11 +46,16 @@
   };
 
   window._getUserTenants = async (userId) => {
-    const userDoc = await getDoc(doc(db, 'users', userId));
-    if (!userDoc.exists()) return [];
-    const tenantIds = userDoc.data().tenantIds || [userDoc.data().tenantId];
-    const tenants = await Promise.all(tenantIds.map(id => window._getTenant(id)));
-    return tenants.filter(t => t);
+    try {
+      const userDoc = await getDoc(doc(db, 'users', userId));
+      if (!userDoc.exists()) return [];
+      const tenantIds = userDoc.data().tenantIds || [userDoc.data().tenantId];
+      const tenants = await Promise.all(tenantIds.map(id => window._getTenant(id)));
+      return tenants.filter(t => t);
+    } catch (error) {
+      console.warn('Erro ao buscar tenants:', error);
+      return [];
+    }
   };
 
   window._getPosts = async (tenantId) => {
@@ -880,11 +886,13 @@
   <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="sidebar-header">
-      <svg class="sidebar-logo" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="60" cy="60" r="55" fill="none" stroke="var(--gold)" stroke-width="2"/>
-        <text x="60" y="70" font-size="48" font-weight="700" text-anchor="middle" fill="var(--gold-dark)" font-family="'Playfair Display', serif">P</text>
+      <svg class="sidebar-logo" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+        <!-- Texto "paleta" em vermelho -->
+        <text x="10" y="55" font-size="48" font-weight="700" fill="#C74444" font-family="'Inter', sans-serif" letter-spacing="-2">paleta</text>
+        <!-- Texto "mkt" em verde/azul -->
+        <text x="130" y="55" font-size="48" font-weight="700" fill="#1B5E6F" font-family="'Inter', sans-serif" letter-spacing="-2">mkt</text>
       </svg>
-      <div class="sidebar-brand">Paleta</div>
+      <div class="sidebar-brand" style="color: #1E1A16; margin-top: 12px;">Calendário</div>
       <div class="sidebar-brand-sub">Editorial Platform</div>
       <select class="tenant-selector" id="tenant-select" onchange="window._switchTenant(this.value)">
         <option>Carregando tenants...</option>
