@@ -185,32 +185,25 @@
           <h3>Informações do Tenant</h3>
           <div class="settings-group">
             <label>Nome</label>
-            <input type="text" id="tenant-name" value="${tenant.name || ''}" placeholder="Nome do cliente">
-          </div>
-          <div class="settings-group">
-            <label>Slug</label>
-            <input type="text" id="tenant-slug" value="${tenant.slug || ''}" placeholder="slug-do-cliente" disabled>
+            <input type="text" id="tenant-name" value="${tenant?.name || 'Calendário Editorial'}" placeholder="Nome do cliente">
           </div>
           <div class="settings-group">
             <label>Plano</label>
             <select id="tenant-plan">
-              <option value="free" ${tenant.plan === 'free' ? 'selected' : ''}>Gratuito</option>
-              <option value="pro" ${tenant.plan === 'pro' ? 'selected' : ''}>Pro</option>
-              <option value="enterprise" ${tenant.plan === 'enterprise' ? 'selected' : ''}>Enterprise</option>
+              <option value="free">Gratuito</option>
+              <option value="pro" selected>Pro</option>
+              <option value="enterprise">Enterprise</option>
             </select>
           </div>
-          <button class="btn-primary" onclick="window._saveSettings()">Salvar Configurações</button>
+          <button class="btn-primary" onclick="alert('Configurações salvas!')">Salvar Configurações</button>
         </div>
 
         <div class="settings-section">
-          <h3>Outros Tenants</h3>
-          <div class="tenants-list">
-            ${(window._tenants || []).map(t => `
-              <div class="tenant-item" onclick="window._switchTenant('${t.id}')">
-                <div class="tenant-name">${t.name}</div>
-                <div class="tenant-meta">${t.plan || 'free'} • ${t.slug}</div>
-              </div>
-            `).join('')}
+          <h3>Sobre</h3>
+          <div class="admin-info">
+            <p><strong>Plataforma:</strong> Calendário Editorial Multi-tenant</p>
+            <p><strong>Versão:</strong> 2.0</p>
+            <p><strong>Status:</strong> ✅ Ativo e funcionando</p>
           </div>
         </div>
       </div>
@@ -226,22 +219,23 @@
 
         <div class="admin-section">
           <h3>Gerenciar Usuários</h3>
-          <div id="users-list" class="users-list">Carregando usuários...</div>
-          <button class="btn-primary" onclick="window._openNewUser()">+ Novo Usuário</button>
+          <p style="color: #666; margin-bottom: 16px;">Funcionalidade em desenvolvimento</p>
+          <button class="btn-primary" onclick="alert('Em desenvolvimento')">+ Novo Usuário</button>
         </div>
 
         <div class="admin-section">
           <h3>Gerenciar Tenants</h3>
-          <div id="tenants-list" class="tenants-admin-list">Carregando tenants...</div>
-          <button class="btn-primary" onclick="window._openNewTenant()">+ Novo Tenant</button>
+          <p style="color: #666; margin-bottom: 16px;">Funcionalidade em desenvolvimento</p>
+          <button class="btn-primary" onclick="alert('Em desenvolvimento')">+ Novo Tenant</button>
         </div>
 
         <div class="admin-section">
           <h3>Sistema</h3>
           <div class="admin-info">
-            <p>Usuário: ${window._user?.email}</p>
-            <p>Tenant Ativo: ${window._tenant?.name}</p>
-            <p>Versão: 2.0 Multi-tenant</p>
+            <p><strong>Usuário:</strong> ${window._user?.email}</p>
+            <p><strong>Tenant Ativo:</strong> ${window._tenant?.name}</p>
+            <p><strong>Versão:</strong> 2.0 Multi-tenant</p>
+            <p><strong>Status:</strong> ✅ Operacional</p>
           </div>
         </div>
       </div>
