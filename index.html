@@ -244,12 +244,51 @@
   window._switchTenant = async (tenantId) => {
     window._tenantId = tenantId;
     window._tenant = window._tenants.find(t => t.id === tenantId);
+    document.getElementById('tenant-select').value = tenantId;
     await window._renderApp();
   };
 
   window._openNewPost = () => {
-    // Será implementado
-    alert('Modal de novo post');
+    const modal = document.getElementById('new-post-modal');
+    if (modal) {
+      modal.style.display = 'flex';
+      document.getElementById('post-title').value = '';
+      document.getElementById('post-caption').value = '';
+      document.getElementById('post-date').value = new Date().toISOString().split('T')[0];
+    }
+  };
+
+  window._closeModal = () => {
+    const modal = document.getElementById('new-post-modal');
+    if (modal) modal.style.display = 'none';
+  };
+
+  window._saveNewPost = async () => {
+    const title = document.getElementById('post-title').value;
+    const caption = document.getElementById('post-caption').value;
+    const date = document.getElementById('post-date').value;
+    const type = document.getElementById('post-type').value;
+    const image = document.getElementById('post-image').value;
+
+    if (!title || !date) {
+      alert('Preencha título e data!');
+      return;
+    }
+
+    try {
+      await window._savePost(window._tenantId, {
+        title,
+        caption,
+        date: new Date(date),
+        type,
+        image,
+      });
+      alert('Post criado com sucesso!');
+      window._closeModal();
+      await window._renderCalendar();
+    } catch (error) {
+      alert('Erro ao criar post: ' + error.message);
+    }
   };
 
   window._editPost = (postId) => {
@@ -883,14 +922,14 @@
   <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="sidebar-header">
-      <svg class="sidebar-logo" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
-        <!-- Texto "paleta" em vermelho -->
-        <text x="10" y="55" font-size="48" font-weight="700" fill="#C74444" font-family="'Inter', sans-serif" letter-spacing="-2">paleta</text>
-        <!-- Texto "mkt" em verde/azul -->
-        <text x="130" y="55" font-size="48" font-weight="700" fill="#1B5E6F" font-family="'Inter', sans-serif" letter-spacing="-2">mkt</text>
+      <svg class="sidebar-logo" viewBox="0 0 240 100" xmlns="http://www.w3.org/2000/svg">
+        <!-- "paleta" em vermelho vivo -->
+        <text x="5" y="70" font-size="56" font-weight="800" fill="#C74444" font-family="'Inter', sans-serif" letter-spacing="-1.5">paleta</text>
+        <!-- "mkt" em azul/verde escuro -->
+        <text x="145" y="70" font-size="56" font-weight="800" fill="#1B5E6F" font-family="'Inter', sans-serif" letter-spacing="-1.5">mkt</text>
       </svg>
-      <div class="sidebar-brand" style="color: #1E1A16; margin-top: 12px;">Calendário</div>
-      <div class="sidebar-brand-sub">Editorial Platform</div>
+      <div class="sidebar-brand" style="color: #1E1A16; margin-top: 8px; font-size: 14px;">Calendário Editorial</div>
+      <div class="sidebar-brand-sub" style="font-size: 11px;">Platform Multi-tenant</div>
       <select class="tenant-selector" id="tenant-select" onchange="window._switchTenant(this.value)">
         <option>Carregando tenants...</option>
       </select>
@@ -932,6 +971,52 @@
   </div>
 </div>
 
+<!-- MODAL: NOVO POST -->
+<div id="new-post-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+  <div style="background: white; border-radius: 12px; padding: 32px; max-width: 500px; width: 90%;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <h2 style="margin: 0; font-size: 20px;">Novo Post</h2>
+      <button onclick="window._closeModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">✕</button>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div>
+        <label style="display: block; margin-bottom: 8px; font-weight: 500; font-size: 13px;">Título *</label>
+        <input type="text" id="post-title" placeholder="Título do post" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+      </div>
+
+      <div>
+        <label style="display: block; margin-bottom: 8px; font-weight: 500; font-size: 13px;">Tipo</label>
+        <select id="post-type" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+          <option value="reel">Reel</option>
+          <option value="carousel">Carrossel</option>
+          <option value="static">Static</option>
+        </select>
+      </div>
+
+      <div>
+        <label style="display: block; margin-bottom: 8px; font-weight: 500; font-size: 13px;">Data *</label>
+        <input type="date" id="post-date" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+      </div>
+
+      <div>
+        <label style="display: block; margin-bottom: 8px; font-weight: 500; font-size: 13px;">URL da Imagem</label>
+        <input type="url" id="post-image" placeholder="https://..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+      </div>
+
+      <div>
+        <label style="display: block; margin-bottom: 8px; font-weight: 500; font-size: 13px;">Legenda</label>
+        <textarea id="post-caption" placeholder="Descrição do post..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; min-height: 80px; font-family: inherit;"></textarea>
+      </div>
+
+      <div style="display: flex; gap: 12px; margin-top: 16px;">
+        <button onclick="window._closeModal()" style="flex: 1; padding: 10px; background: #f0f0f0; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Cancelar</button>
+        <button onclick="window._saveNewPost()" style="flex: 1; padding: 10px; background: var(--gold); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Salvar Post</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
   // Atualizar seletor de tenants e info do usuário após carregar
   setTimeout(() => {
@@ -950,6 +1035,11 @@
       avatar.textContent = window._user.email.charAt(0).toUpperCase();
     }
   }, 100);
+
+  // Fechar modal ao clicar fora
+  document.getElementById('new-post-modal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'new-post-modal') window._closeModal();
+  });
 </script>
 
 </body>
