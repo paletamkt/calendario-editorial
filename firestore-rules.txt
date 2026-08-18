@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function userTenant() {
+      let userData = getUserData();
+      return userData.tenantId != null ? userData.tenantId : '';
+    }
+
+    function belongsToUserTenant(tenantId) {
+      return isAuth() && userTenant() == tenantId;
+    }
+
+    function hasRole(role) {
+      return isAuth() && getUserData().role == role;
+    }
+
+    function isEditor() {
+      let userRole = getUserData().role;
+      return userRole == 'admin' || userRole == 'editor';
+    }
+
+    // Users collection - each user can only read/write their own document
+    match /users/{userId} {
+      allow read: if request.auth.uid == userId;
+      allow create: if request.auth.uid == userId;
+      allow update: if request.auth.uid == userId;
+    }
+
+    // Tenants collection - read if user belongs to tenant, write if admin
+    match /tenants/{tenantId} {
+      allow read: if isAuth() && belongsToUserTenant(tenantId);
+      allow create: if isAuth() && hasRole('admin');
+      allow update: if isAuth() && belongsToUserTenant(tenantId) && hasRole('admin');
+      allow delete: if isAuth() && belongsToUserTenant(tenantId) && hasRole('admin');
+    }
+
+    // Posts collection - filtered by tenantId
+    match /posts/{postId} {
+      allow read: if isAuth() && belongsToUserTenant(resource.data.tenantId);
+      allow create: if isAuth() && belongsToUserTenant(request.resource.data.tenantId) && isEditor();
+      allow update: if isAuth() && belongsToUserTenant(resource.data.tenantId) && isEditor();
+      allow delete: if isAuth() && belongsToUserTenant(resource.data.tenantId) && hasRole('admin');
+    }
+  }
+}

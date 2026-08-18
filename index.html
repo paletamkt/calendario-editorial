@@ -86,12 +86,17 @@
 
     if (user) {
       window._user = user;
-      const tenants = await window._getUserTenants(user.uid);
-      window._tenants = tenants;
+      try {
+        const tenants = await window._getUserTenants(user.uid);
+        window._tenants = tenants;
 
-      if (tenants.length > 0) {
-        window._tenantId = tenants[0].id;
-        window._tenant = tenants[0];
+        if (tenants.length > 0) {
+          window._tenantId = tenants[0].id;
+          window._tenant = tenants[0];
+        }
+      } catch (error) {
+        console.error('Erro ao carregar tenants:', error);
+        window._tenants = [];
       }
 
       loginScreen.style.display = 'none';
