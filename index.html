@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-  import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+  import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, writeBatch, query, where, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
   import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
   const firebaseConfig = {
@@ -27,12 +27,25 @@
   window._db = db;
   window._postsCol = postsCol;
   window._auth = auth;
-  window._fsdk = { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, writeBatch };
+  window._fsdk = { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, writeBatch, query, where, getDoc };
+  window._tenantId = null;
 
   window._signIn = (email, password) => signInWithEmailAndPassword(auth, email, password);
   window._signOut = () => signOut(auth);
 
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      try {
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+          window._tenantId = userDoc.data().tenantId;
+        }
+      } catch (e) {
+        console.error('Erro ao buscar tenantId:', e);
+      }
+    } else {
+      window._tenantId = null;
+    }
     window.dispatchEvent(new CustomEvent('auth-state-changed', { detail: { loggedIn: !!user } }));
   });
 
@@ -704,6 +717,7 @@ window.addEventListener('firebase-ready', () => {
     if (editingId) {
       await updateDoc(doc(db, 'posts', editingId), data);
     } else {
+      data.tenantId = window._tenantId;
       return await addDoc(postsRef, data);
     }
   };
@@ -713,14 +727,11 @@ window.addEventListener('firebase-ready', () => {
   };
 
   window._loadPosts = async () => {
-    const snap = await getDocs(postsRef);
-    if (snap.empty) {
-      const batch = writeBatch(db);
-      DEFAULT_POSTS.forEach(p => { const ref = doc(postsRef); batch.set(ref, p); });
-      await batch.commit();
-      const snap2 = await getDocs(postsRef);
-      return snap2.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (!window._tenantId) {
+      return DEFAULT_POSTS.map((p, i) => ({ id: String(i), ...p }));
     }
+    const q = query(postsRef, where('tenantId', '==', window._tenantId));
+    const snap = await getDocs(q);
     return snap.docs.map(d => ({ id: d.id, ...d.data() }));
   };
 
