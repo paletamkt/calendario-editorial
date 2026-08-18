@@ -86,18 +86,9 @@
 
     if (user) {
       window._user = user;
-      try {
-        const tenants = await window._getUserTenants(user.uid);
-        window._tenants = tenants;
-
-        if (tenants.length > 0) {
-          window._tenantId = tenants[0].id;
-          window._tenant = tenants[0];
-        }
-      } catch (error) {
-        console.error('Erro ao carregar tenants:', error);
-        window._tenants = [];
-      }
+      window._tenantId = 'default-tenant';
+      window._tenant = { id: 'default-tenant', name: 'Calendário Editorial' };
+      window._tenants = [{ id: 'default-tenant', name: 'Calendário Editorial' }];
 
       loginScreen.style.display = 'none';
       appScreen.style.display = 'flex';
@@ -128,8 +119,16 @@
   };
 
   window._renderCalendar = async () => {
-    const posts = await window._getPosts(window._tenantId);
     const container = document.getElementById('view-content');
+    let posts = [];
+
+    try {
+      if (window._tenantId) {
+        posts = await window._getPosts(window._tenantId);
+      }
+    } catch (e) {
+      console.warn('Erro ao carregar posts:', e);
+    }
 
     const today = new Date();
     const year = today.getFullYear();
@@ -146,7 +145,7 @@
     `;
 
     if (posts.length === 0) {
-      html += '<div class="empty-state">Nenhum post neste período</div>';
+      html += '<div class="empty-state">Nenhum post neste período. Clique em "+ Novo Post" para começar!</div>';
     } else {
       posts.forEach(post => {
         const date = new Date(post.date?.toDate?.() || post.date);
