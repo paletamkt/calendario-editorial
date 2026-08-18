@@ -175,7 +175,6 @@
 
   window._renderSettings = async () => {
     const container = document.getElementById('view-content');
-    const tenant = window._tenant;
 
     container.innerHTML = `
       <div class="settings-panel">
@@ -185,11 +184,11 @@
           <h3>Informações do Tenant</h3>
           <div class="settings-group">
             <label>Nome</label>
-            <input type="text" id="tenant-name" value="${tenant?.name || 'Calendário Editorial'}" placeholder="Nome do cliente">
+            <input type="text" value="Calendário Editorial" placeholder="Nome do cliente">
           </div>
           <div class="settings-group">
             <label>Plano</label>
-            <select id="tenant-plan">
+            <select>
               <option value="free">Gratuito</option>
               <option value="pro" selected>Pro</option>
               <option value="enterprise">Enterprise</option>
