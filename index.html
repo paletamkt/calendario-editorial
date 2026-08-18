@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calendário Editorial — Dra. Yasmim Meneses</title>
+<title id="page-title">Calendário Editorial</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
@@ -29,6 +29,7 @@
   window._auth = auth;
   window._fsdk = { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, writeBatch, query, where, getDoc };
   window._tenantId = null;
+  window._tenantName = 'Calendário Editorial';
 
   window._signIn = (email, password) => signInWithEmailAndPassword(auth, email, password);
   window._signOut = () => signOut(auth);
@@ -39,12 +40,22 @@
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
           window._tenantId = userDoc.data().tenantId;
+
+          // Buscar dados do tenant
+          const tenantDoc = await getDoc(doc(db, 'tenants', window._tenantId));
+          if (tenantDoc.exists()) {
+            window._tenantName = tenantDoc.data().name;
+            document.getElementById('page-title').textContent = `Calendário Editorial — ${window._tenantName}`;
+            document.getElementById('header-title').textContent = window._tenantName;
+            document.getElementById('header-subtitle').textContent = 'Calendário Editorial · Paleta Mkt';
+          }
         }
       } catch (e) {
-        console.error('Erro ao buscar tenantId:', e);
+        console.error('Erro ao buscar tenant:', e);
       }
     } else {
       window._tenantId = null;
+      window._tenantName = 'Calendário Editorial';
     }
     window.dispatchEvent(new CustomEvent('auth-state-changed', { detail: { loggedIn: !!user } }));
   });
@@ -235,8 +246,8 @@
 
 <header>
   <div class="header-left">
-    <h1>Dra. Yasmim Meneses</h1>
-    <p>Calendário Editorial · Paleta Mkt</p>
+    <h1 id="header-title">Calendário Editorial</h1>
+    <p id="header-subtitle">Calendário Editorial · Paleta Mkt</p>
   </div>
   <div class="header-right">
     <span class="admin-badge" id="admin-badge" style="display:none">● Modo edição</span>
