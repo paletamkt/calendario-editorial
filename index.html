@@ -40,8 +40,8 @@
   };
 
   window._getTenant = async (tenantId) => {
-    const doc = await getDoc(getDoc(db, 'tenants', tenantId));
-    return doc.exists() ? { id: doc.id, ...doc.data() } : null;
+    const docSnap = await getDoc(doc(db, 'tenants', tenantId));
+    return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null;
   };
 
   window._getUserTenants = async (userId) => {
@@ -309,12 +309,23 @@
   window.dispatchEvent(new Event('firebase-ready'));
 </script>
 <style>
+  :root {
+    --gold: #B8956A;
+    --gold-light: #E8D8C0;
+    --gold-dark: #8B6C45;
+    --ivory: #F8F5F0;
+    --cream: #EDE9E1;
+    --text: #1E1A16;
+    --text-muted: #7A6E63;
+    --text-light: #A8998C;
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
     font-family: 'Inter', sans-serif;
-    background: #f8f9fa;
-    color: #1f2937;
+    background: var(--ivory);
+    color: var(--text);
     line-height: 1.6;
   }
 
@@ -324,12 +335,12 @@
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold) 100%);
     display: none;
   }
 
   .login-container {
-    background: white;
+    background: var(--ivory);
     padding: 48px;
     border-radius: 12px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
@@ -345,13 +356,13 @@
   .login-header h1 {
     font-size: 28px;
     font-weight: 700;
-    color: #667eea;
+    color: var(--gold-dark);
     font-family: 'Playfair Display', serif;
     margin-bottom: 8px;
   }
 
   .login-header p {
-    color: #6b7280;
+    color: var(--text-muted);
     font-size: 14px;
   }
 
@@ -377,14 +388,14 @@
 
   .form-group input:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(184, 149, 106, 0.1);
   }
 
   .btn-login {
     width: 100%;
     padding: 12px;
-    background: #667eea;
+    background: var(--gold);
     color: white;
     border: none;
     border-radius: 8px;
@@ -395,7 +406,7 @@
   }
 
   .btn-login:hover {
-    background: #5568d3;
+    background: var(--gold-dark);
   }
 
   #login-error {
@@ -417,7 +428,7 @@
 
   .sidebar {
     width: 260px;
-    background: white;
+    background: var(--ivory);
     border-right: 1px solid #e5e7eb;
     display: flex;
     flex-direction: column;
@@ -436,7 +447,7 @@
     font-family: 'Playfair Display', serif;
     font-size: 20px;
     font-weight: 700;
-    color: #667eea;
+    color: var(--gold);
   }
 
   .sidebar-brand-sub {
@@ -476,13 +487,13 @@
 
   .sidebar-item:hover {
     background: #f9fafb;
-    color: #667eea;
+    color: var(--gold);
   }
 
   .sidebar-item.active {
     background: #f3f4f6;
-    border-left-color: #667eea;
-    color: #667eea;
+    border-left-color: var(--gold);
+    color: var(--gold);
     font-weight: 600;
   }
 
@@ -517,7 +528,7 @@
   }
 
   .header-bar {
-    background: white;
+    background: var(--ivory);
     border-bottom: 1px solid #e5e7eb;
     padding: 16px 32px;
     display: flex;
@@ -565,7 +576,7 @@
   .user-avatar {
     width: 36px;
     height: 36px;
-    background: #667eea;
+    background: var(--gold);
     color: white;
     border-radius: 50%;
     display: flex;
@@ -600,7 +611,7 @@
   }
 
   .post-card {
-    background: white;
+    background: var(--ivory);
     border-radius: 8px;
     overflow: hidden;
     border: 1px solid #e5e7eb;
@@ -610,7 +621,7 @@
   }
 
   .post-card:hover {
-    border-color: #667eea;
+    border-color: var(--gold);
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
   }
 
@@ -726,7 +737,7 @@
 
   .settings-section,
   .admin-section {
-    background: white;
+    background: var(--ivory);
     padding: 24px;
     border-radius: 8px;
     border: 1px solid #e5e7eb;
@@ -764,7 +775,7 @@
   .settings-group input:focus,
   .settings-group select:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--gold);
   }
 
   .tenants-list {
@@ -784,7 +795,7 @@
 
   .tenant-item:hover {
     background: #f3f4f6;
-    border-color: #667eea;
+    border-color: var(--gold);
   }
 
   .tenant-name {
@@ -807,7 +818,7 @@
 
   .btn-primary {
     padding: 10px 20px;
-    background: #667eea;
+    background: var(--gold);
     color: white;
     border: none;
     border-radius: 6px;
@@ -819,7 +830,13 @@
   }
 
   .btn-primary:hover {
-    background: #5568d3;
+    background: var(--gold-dark);
+  }
+
+  .sidebar-logo {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 12px;
   }
 
   /* RESPONSIVE */
@@ -863,6 +880,10 @@
   <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="sidebar-header">
+      <svg class="sidebar-logo" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="60" cy="60" r="55" fill="none" stroke="var(--gold)" stroke-width="2"/>
+        <text x="60" y="70" font-size="48" font-weight="700" text-anchor="middle" fill="var(--gold-dark)" font-family="'Playfair Display', serif">P</text>
+      </svg>
       <div class="sidebar-brand">Paleta</div>
       <div class="sidebar-brand-sub">Editorial Platform</div>
       <select class="tenant-selector" id="tenant-select" onchange="window._switchTenant(this.value)">
